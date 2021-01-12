@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import getToken from '../services/API';
 
 class Login extends Component {
@@ -10,6 +10,7 @@ class Login extends Component {
       name: '',
       email: '',
       isDisabled: true,
+      isRedirect: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.validate = this.validate.bind(this);
@@ -39,7 +40,18 @@ class Login extends Component {
   }
 
   saveLocalStorage({ token }) {
+    const { name, email } = this.state;
+    const player = {
+      name,
+      assertions: 0,
+      score: 0,
+      gravatarEmail: email,
+    };
     localStorage.setItem('token', token);
+    localStorage.setItem('state', JSON.stringify(player));
+    this.setState({
+      isRedirect: true,
+    });
   }
 
   async handleAPIRequest() {
@@ -49,7 +61,10 @@ class Login extends Component {
 
   render() {
     const { handleChange } = this;
-    const { name, email, isDisabled } = this.state;
+    const { name, email, isDisabled, isRedirect } = this.state;
+    if (isRedirect) {
+      return <Redirect to="/game" />;
+    }
     return (
       <div>
         <form>
@@ -74,18 +89,15 @@ class Login extends Component {
               onChange={ (event) => handleChange(event) }
             />
           </label>
-          <Link to="/game">
-            <button
-              type="button"
-              disabled={ isDisabled }
-              data-testid="btn-play"
-              onClick={ this.handleAPIRequest }
-            >
-              Jogar
-            </button>
-          </Link>
+          <button
+            type="button"
+            disabled={ isDisabled }
+            data-testid="btn-play"
+            onClick={ () => this.handleAPIRequest() }
+          >
+            Jogar
+          </button>
         </form>
-
         <Link to="/settings">
           <button
             type="button"
