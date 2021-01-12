@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import getToken from '../services/API';
 
 class Login extends Component {
   constructor(props) {
@@ -11,6 +13,8 @@ class Login extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.validate = this.validate.bind(this);
+    this.saveLocalStorage = this.saveLocalStorage.bind(this);
+    this.handleAPIRequest = this.handleAPIRequest.bind(this);
   }
 
   validate() {
@@ -32,6 +36,15 @@ class Login extends Component {
     });
 
     this.validate();
+  }
+
+  saveLocalStorage({ token }) {
+    localStorage.setItem('token', token);
+  }
+
+  async handleAPIRequest() {
+    const response = await getToken();
+    this.saveLocalStorage(response);
   }
 
   render() {
@@ -61,13 +74,16 @@ class Login extends Component {
               onChange={ (event) => handleChange(event) }
             />
           </label>
-          <button
-            type="button"
-            disabled={ isDisabled }
-            data-testid="btn-play"
-          >
-            Jogar
-          </button>
+          <Link to="/game">
+            <button
+              type="button"
+              disabled={ isDisabled }
+              data-testid="btn-play"
+              onClick={ this.handleAPIRequest }
+            >
+              Jogar
+            </button>
+          </Link>
         </form>
       </div>
     );
