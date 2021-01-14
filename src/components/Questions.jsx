@@ -1,17 +1,22 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { questionCount } from '../store/reducer/user.action';
 
 class Questions extends Component {
   constructor(props) {
     super(props);
-    this.handleButtonClick = this.handleButtonClick.bind(this);
-    this.updateTimer = this.updateTimer.bind(this);
-    this.buttonDisable = this.buttonDisable.bind(this);
+    this.handleNextButtonClick = this.handleNextButtonClick.bind(this);
+    this.handleAnswerButtonClick = this.handleAnswerButtonClick.bind(this);
+    this.updateTime = this.updateTime.bind(this);
+    this.handleButtonsState = this.handleButtonsState.bind(this);
+    this.timeOut = this.timeOut.bind(this);
     this.state = {
       timer: 30,
       isDisabled: false,
+      isVisible: false,
+      isRedirect: false,
     };
   }
 
@@ -20,41 +25,60 @@ class Questions extends Component {
   }
 
   componentDidUpdate() {
-    const { timer, isDisabled } = this.state;
-    if (timer < 1) {
-      clearInterval(this.timerID);
-      if (!isDisabled) this.buttonDisable();
+    const { timer, isVisible } = this.state;
+    if (timer < 1 && !isVisible) {
+      this.timeOut();
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  timeOut() {
+    clearInterval(this.timerID);
+    this.handleButtonsState();
   }
 
   startTimer() {
     const TIMER_CLOCK = 1000;
     this.timerID = setInterval(
-      () => this.updateTimer(),
+      () => this.updateTime(),
       TIMER_CLOCK,
     );
   }
 
-  buttonDisable() {
+  handleButtonsState() {
+    const { isDisabled, isVisible } = this.state;
     this.setState({
-      isDisabled: true,
+      isDisabled: !isDisabled,
+      isVisible: !isVisible,
     });
   }
 
-  updateTimer() {
+  updateTime() {
     const TIMER_DECREASE = 1;
     this.setState((previousState) => ({
       timer: previousState.timer - TIMER_DECREASE,
     }));
   }
 
-  handleButtonClick() {
-    const { dispatchQuestionCount } = this.props;
+  handleAnswerButtonClick({ target: { name } }) {
+    this.handleButtonsState();
+    clearInterval(this.timerID);
+    if (name === 'correct') this.updateScore();
+  }
+
+  handleNextButtonClick() {
+    const { dispatchQuestionCount, questionCounter } = this.props;
+    const NEXT_QUESTIONS_LIMIT = 4;
+    if (questionCounter === NEXT_QUESTIONS_LIMIT) this.setState({ isRedirect: true });
     dispatchQuestionCount();
-    this.updateScore();
     this.setState({
       timer: 30,
     });
+    this.handleButtonsState();
+    this.startTimer();
   }
 
   updateScore() {
@@ -67,18 +91,25 @@ class Questions extends Component {
       hard: 2,
     };
     const BASE_SCORE = 10;
+    const ASSERTIONS_ADD = 1;
     const { difficulty } = questions[questionCounter];
     const questionScore = BASE_SCORE + weight[difficulty] + timer;
     localStorage.setItem('state', JSON
-      .stringify({ player: { ...player, score: player.score + questionScore } }));
+      .stringify({
+        player: {
+          ...player,
+          score: player.score + questionScore,
+          assertions: player.assertions + ASSERTIONS_ADD,
+        },
+      }));
   }
 
   render() {
-    const { timer, isDisabled } = this.state;
+    const { handleAnswerButtonClick, handleNextButtonClick } = this;
+    const { timer, isDisabled, isVisible, isRedirect } = this.state;
     const { questionCounter, questions } = this.props;
-    if (!questions) {
-      return <div>Loading...</div>;
-    }
+    if (isRedirect) return <Redirect to="/feedback" />;
+    if (!questions) return <div>Loading...</div>;
     const {
       category,
       question,
@@ -92,9 +123,10 @@ class Questions extends Component {
         <button
           disabled={ isDisabled }
           type="button"
+          name="correct"
           className="correct-answer"
           data-testid="correct-answer"
-          onClick={ this.handleButtonClick }
+          onClick={ (event) => handleAnswerButtonClick(event) }
         >
           { correctAnswer }
         </button>
@@ -103,15 +135,29 @@ class Questions extends Component {
             .map((answer, index) => (
               <button
                 disabled={ isDisabled }
+                name="wrong"
                 key={ answer }
                 className="wrong-answer"
                 type="button"
+                onClick={ (event) => handleAnswerButtonClick(event) }
                 data-testid={ `wrong-answer-${index}` }
               >
                 { answer }
               </button>))
         }
         <p>{ `Tempo: ${timer}s` }</p>
+        {
+          (isVisible)
+          && (
+            <button
+              type="button"
+              data-testid="btn-next"
+              onClick={ handleNextButtonClick }
+            >
+              Próxima
+            </button>
+          )
+        }
       </div>
     );
   }
