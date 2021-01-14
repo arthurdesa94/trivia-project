@@ -31,6 +31,7 @@ class Questions extends Component {
         <p data-testid="question-text">{ question }</p>
         <button
           type="button"
+          className="correct-answer"
           data-testid="correct-answer"
           onClick={ this.handleButtonClick }
         >
@@ -41,6 +42,7 @@ class Questions extends Component {
             .map((answer, index) => (
               <button
                 key={ answer }
+                className="wrong-answer"
                 type="button"
                 data-testid={ `wrong-answer-${index}` }
               >
