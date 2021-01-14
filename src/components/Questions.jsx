@@ -7,18 +7,60 @@ class Questions extends Component {
   constructor(props) {
     super(props);
     this.handleButtonClick = this.handleButtonClick.bind(this);
+    this.updateTimer = this.updateTimer.bind(this);
+    this.buttonDisable = this.buttonDisable.bind(this);
+    this.state = {
+      timer: 30,
+      isDisabled: false,
+    };
+  }
+
+  componentDidMount() {
+    this.startTimer();
+  }
+
+  componentDidUpdate() {
+    const { timer, isDisabled } = this.state;
+    if (timer < 1) {
+      clearInterval(this.timerID);
+      if (!isDisabled) this.buttonDisable();
+    }
+  }
+
+  startTimer() {
+    const TIMER_CLOCK = 1000;
+    this.timerID = setInterval(
+      () => this.updateTimer(),
+      TIMER_CLOCK,
+    );
+  }
+
+  buttonDisable() {
+    this.setState({
+      isDisabled: true,
+    });
+  }
+
+  updateTimer() {
+    const TIMER_DECREASE = 1;
+    this.setState((previousState) => ({
+      timer: previousState.timer - TIMER_DECREASE,
+    }));
   }
 
   handleButtonClick() {
     const { dispatchQuestionCount } = this.props;
     dispatchQuestionCount();
     this.updateScore();
+    this.setState({
+      timer: 30,
+    });
   }
 
   updateScore() {
+    const { timer } = this.state;
     const { player } = JSON.parse(localStorage.getItem('state'));
     const { questionCounter, questions } = this.props;
-    const timer = 20;
     const weight = {
       easy: 1,
       medium: 2,
@@ -32,6 +74,7 @@ class Questions extends Component {
   }
 
   render() {
+    const { timer, isDisabled } = this.state;
     const { questionCounter, questions } = this.props;
     if (!questions) {
       return <div>Loading...</div>;
@@ -47,6 +90,7 @@ class Questions extends Component {
         <p data-testid="question-category">{ category }</p>
         <p data-testid="question-text">{ question }</p>
         <button
+          disabled={ isDisabled }
           type="button"
           className="correct-answer"
           data-testid="correct-answer"
@@ -58,6 +102,7 @@ class Questions extends Component {
           incorrectAnswers
             .map((answer, index) => (
               <button
+                disabled={ isDisabled }
                 key={ answer }
                 className="wrong-answer"
                 type="button"
@@ -66,6 +111,7 @@ class Questions extends Component {
                 { answer }
               </button>))
         }
+        <p>{ `Tempo: ${timer}s` }</p>
       </div>
     );
   }

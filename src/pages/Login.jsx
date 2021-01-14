@@ -34,9 +34,7 @@ class Login extends Component {
   handleChange({ target: { name, value } }) {
     this.setState({
       [name]: value,
-    });
-
-    this.validate();
+    }, () => this.validate());
   }
 
   saveLocalStorage({ token }) {
