@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { questionCount } from '../store/reducer/user.action';
+import './Questions.css';
 
 class Questions extends Component {
   constructor(props) {
@@ -118,8 +119,10 @@ class Questions extends Component {
     } = questions[questionCounter];
     return (
       <div>
-        <p data-testid="question-category">{ category }</p>
-        <p data-testid="question-text">{ question }</p>
+        <div className="questions-div">
+          <p data-testid="question-category">{ category }</p>
+          <p data-testid="question-text">{ question }</p>
+        </div>
         <button
           disabled={ isDisabled }
           type="button"
@@ -145,13 +148,16 @@ class Questions extends Component {
                 { answer }
               </button>))
         }
+        <div className="time-div">
         <p>{ `Tempo: ${timer}s` }</p>
+        </div>
         {
           (isVisible)
           && (
             <button
               type="button"
               data-testid="btn-next"
+              className="btn-next"
               onClick={ handleNextButtonClick }
             >
               Próxima

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Header from '../components/Header';
 import { getTriviaQuestions } from '../services/API';
 import Questions from '../components/Questions';
+import './Game.css';
 
 class Game extends Component {
   constructor(props) {
@@ -28,10 +29,12 @@ class Game extends Component {
   render() {
     const { isFetching } = this.props;
     return (
-      <div>
-        <Header />
-        { (isFetching) ? <div>Loading...</div> : <Questions /> }
-      </div>
+      <section className="game-area">
+        <div>
+          <Header />
+          { (isFetching) ? <div>Loading...</div> : <Questions /> }
+        </div>
+      </section>
     );
   }
 }

@@ -1,0 +1,51 @@
+.questions-div {
+  /* text-align: center; */
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.correct-answer {
+  margin-left: 20px;
+  background-color:aquamarine;
+  border: 3px solid rgb(6, 240, 15);
+  border-radius: 10px;
+  text-align: center;
+  color: black; 
+  font-size: 20px;
+  padding: 5px;
+}
+
+.wrong-answer {
+  margin-left: 20px;
+  background-color:aquamarine;
+  border: 3px solid red;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 20px;
+  padding: 5px;
+  color: black;
+}
+
+.time-div {
+  align-self: center;
+  background-color:rgb(175, 49, 27);
+  margin: 35px;
+  color: white;
+  border-style: solid;
+  border-radius: 50%;
+  width: 50%;
+  font-weight:bold;
+  text-align: center;
+  font-size: 40px;
+  padding: 5px;
+}
+
+.btn-nxt {
+  background-color: black;
+  margin: 5px;
+  color: white;
+  padding: 5px;
+  border-radius: 50%;
+  text-align: center;
+}
